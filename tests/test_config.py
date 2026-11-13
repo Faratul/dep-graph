@@ -60,7 +60,7 @@ class ParseConfigTest(unittest.TestCase):
 
     def test_bad_depth(self):
         """Глубина: не число, отрицательная, слишком большая."""
-        for value in ("abc", "-1", "1000", "1.5"):
+        for value in ("abc", "0", "-1", "1000", "1.5"):
             with self.assertRaises(ConfigError):
                 parse_config(["-p", "debug", "-d", value])
 

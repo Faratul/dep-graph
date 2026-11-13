@@ -10,7 +10,7 @@ from .errors import ConfigError
 
 DEFAULT_REPO = "https://registry.npmjs.org"
 DEFAULT_DEPTH = 2
-MIN_DEPTH = 0
+MIN_DEPTH = 1
 MAX_DEPTH_LIMIT = 100
 NPM_NAME_MAX_LENGTH = 214
 URL_SCHEMES = ("http", "https")
