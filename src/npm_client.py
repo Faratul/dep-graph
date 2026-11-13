@@ -65,3 +65,10 @@ class NpmRepository:
     def get_dependencies(self, name):
         """Вернуть список прямых зависимостей пакета."""
         return extract_dependencies(fetch_manifest(self.url, name))
+
+    def get_dependents(self, name):
+        """Обратные зависимости: реестр npm их не отдаёт, это ошибка."""
+        raise RepoError(
+            f"реестр npm не позволяет найти пакеты, зависящие от {name}; "
+            "используйте тестовый режим (--test-mode)"
+        )

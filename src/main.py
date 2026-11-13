@@ -32,17 +32,34 @@ def print_graph(config, graph):
     print(f"Пакетов: {len(graph)}, зависимостей (рёбер): {edges}")
 
 
+def print_reverse(config, graph):
+    """Вывести обратные зависимости: пакеты, зависящие от заданного."""
+    others = [name for name in graph if name != config.package]
+    print(
+        f"Обратные зависимости пакета {config.package} "
+        f"(глубина {config.max_depth}, фильтр {config.filter_substring!r}):"
+    )
+    for name in others:
+        print(f"  - {name}")
+    if not others:
+        print(f"  {NO_DEPENDENCIES}")
+
+
 def run(argv):
-    """Выполнить работу программы этапа 3."""
+    """Выполнить работу программы этапа 4."""
     config = parse_config(argv)
     repo = create_repository(config)
+    if config.reverse:
+        get_neighbors, show = repo.get_dependents, print_reverse
+    else:
+        get_neighbors, show = repo.get_dependencies, print_graph
     graph = build_graph(
         config.package,
-        repo.get_dependencies,
+        get_neighbors,
         config.max_depth,
         config.filter_substring,
     )
-    print_graph(config, graph)
+    show(config, graph)
 
 
 def main(argv=None):

@@ -65,11 +65,23 @@ class FileRepository:
                 from None
         self.packages = parse_repo_text(text)
         self.known = set(self.packages)
-        for dependencies in self.packages.values():
+        self.dependents = {}
+        for name, dependencies in self.packages.items():
             self.known.update(dependencies)
+            for dependency in dependencies:
+                self.dependents.setdefault(dependency, []).append(name)
+
+    def check_known(self, name):
+        """Убедиться, что пакет есть в тестовом репозитории."""
+        if name not in self.known:
+            raise RepoError(f"пакет не найден в тестовом репозитории: {name}")
 
     def get_dependencies(self, name):
         """Вернуть список прямых зависимостей пакета."""
-        if name not in self.known:
-            raise RepoError(f"пакет не найден в тестовом репозитории: {name}")
+        self.check_known(name)
         return list(self.packages.get(name, []))
+
+    def get_dependents(self, name):
+        """Вернуть пакеты, которые напрямую зависят от пакета."""
+        self.check_known(name)
+        return list(self.dependents.get(name, []))

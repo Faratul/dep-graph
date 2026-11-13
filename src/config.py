@@ -30,6 +30,7 @@ class Config:
     ascii_tree: bool
     max_depth: int
     filter_substring: str
+    reverse: bool
 
 
 def build_parser():
@@ -60,6 +61,10 @@ def build_parser():
     parser.add_argument(
         "-f", "--filter", dest="filter_substring", default="",
         help="не учитывать пакеты, в имени которых есть эта подстрока",
+    )
+    parser.add_argument(
+        "-R", "--reverse", action="store_true",
+        help="вывести обратные зависимости (кто зависит от пакета)",
     )
     return parser
 
@@ -124,4 +129,5 @@ def parse_config(argv=None):
         ascii_tree=args.ascii_tree,
         max_depth=check_depth(args.max_depth),
         filter_substring=check_filter(args.filter_substring, package),
+        reverse=args.reverse,
     )
