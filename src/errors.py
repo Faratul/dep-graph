@@ -7,3 +7,7 @@ class ConfigError(Exception):
 
 class RepoError(Exception):
     """Не удалось получить данные из репозитория пакетов."""
+
+
+class RenderError(Exception):
+    """Не удалось построить изображение графа."""

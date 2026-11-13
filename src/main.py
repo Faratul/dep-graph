@@ -2,11 +2,13 @@
 
 import sys
 
+from .ascii_tree import build_tree_lines
 from .config import parse_config
-from .errors import ConfigError, RepoError
+from .errors import ConfigError, RenderError, RepoError
 from .file_repository import FileRepository
 from .graph import build_graph
 from .npm_client import NpmRepository
+from .plantuml import open_image, render_png, save_text, to_plantuml
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -32,6 +34,22 @@ def print_graph(config, graph):
     print(f"Пакетов: {len(graph)}, зависимостей (рёбер): {edges}")
 
 
+def show_graph(config, graph):
+    """Показать граф: список, ASCII-дерево, PlantUML и картинку."""
+    print_graph(config, graph)
+    if config.ascii_tree:
+        print("ASCII-дерево зависимостей:")
+        print("\n".join(build_tree_lines(graph, config.package)))
+    text = to_plantuml(graph, config.package)
+    print("Текст диаграммы PlantUML:")
+    print(text, end="")
+    puml_path = save_text(text)
+    print(f"Диаграмма сохранена в файл: {puml_path}")
+    png_path = render_png(puml_path)
+    if not open_image(png_path):
+        print(f"Не удалось открыть картинку, откройте файл: {png_path}")
+
+
 def print_reverse(config, graph):
     """Вывести обратные зависимости: пакеты, зависящие от заданного."""
     others = [name for name in graph if name != config.package]
@@ -46,13 +64,13 @@ def print_reverse(config, graph):
 
 
 def run(argv):
-    """Выполнить работу программы этапа 4."""
+    """Выполнить работу программы."""
     config = parse_config(argv)
     repo = create_repository(config)
     if config.reverse:
         get_neighbors, show = repo.get_dependents, print_reverse
     else:
-        get_neighbors, show = repo.get_dependencies, print_graph
+        get_neighbors, show = repo.get_dependencies, show_graph
     graph = build_graph(
         config.package,
         get_neighbors,
@@ -66,7 +84,7 @@ def main(argv=None):
     """Запустить программу и вернуть код завершения."""
     try:
         run(argv)
-    except (ConfigError, RepoError) as error:
+    except (ConfigError, RepoError, RenderError) as error:
         print(f"Ошибка: {error}", file=sys.stderr)
         return EXIT_ERROR
     return EXIT_OK
